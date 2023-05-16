@@ -1,0 +1,25 @@
+---
+- hosts: qaserver
+  become: yes
+  ignore_errors: yes
+  tasks:
+    - name: Install package
+      package:
+         name: "{{ item }}"
+         state: present
+      with_items:
+        - unzip
+        - wget
+        - httpd
+    - name: Download and extract iPortfolio
+      shell: |
+        wget https://github.com/utrains/static-resume/archive/refs/heads/main.zip -O /tmp/main.zip
+        unzip /tmp/main.zip -d /tmp
+        cp -r /tmp/static-resume-main/iPortfolio/* /var/www/html/
+      become: true
+
+    - name: Start and enable Apache
+      service:
+        name: httpd
+        state: started
+        enabled: true       
